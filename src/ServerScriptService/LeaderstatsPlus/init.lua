@@ -86,7 +86,6 @@ function LeaderstatsPlus:__init(player: Player)
 
                     player:GetAttributeChangedSignal(dataName):Connect(function()
                         val.Value = tostring(player:GetAttribute(dataName))
-                        Profile.Data[dataName] = player:GetAttribute(dataName)
                     end)
 
                     val:GetPropertyChangedSignal("Value"):Connect(function()
