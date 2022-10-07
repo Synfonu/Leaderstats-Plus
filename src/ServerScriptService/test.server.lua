@@ -8,8 +8,7 @@ lsp:setDataValues({
 
 game:GetService("Players").PlayerAdded:Connect(function(player)
     local playerData = lsp(player)
-    
-    task.wait(3)
 
-    player:FindFirstChild("leaderstats"):WaitForChild("Cash").Value += 100
+    local currentCash = player:GetAttribute("Cash")
+    player:SetAttribute("Cash", currentCash + 100)
 end)
