@@ -76,7 +76,12 @@ function LeaderstatsPlus:__init(player: Player)
 
                 for dataName, value in pairs(Profile.Data) do
                     if total > 4 then continue end
-
+                              
+                    if MainValues[dataName] == nil then
+                        Profile.Data[dataName] = nil
+                        continue
+                    end
+            
                     local val = Instance.new("StringValue")
                     val.Name = dataName
                     val.Value = tostring(value)
@@ -86,6 +91,7 @@ function LeaderstatsPlus:__init(player: Player)
 
                     player:GetAttributeChangedSignal(dataName):Connect(function()
                         val.Value = tostring(player:GetAttribute(dataName))
+                        Profile.Data[dataName] = player:GetAttribute(dataName)
                     end)
 
                     val:GetPropertyChangedSignal("Value"):Connect(function()
