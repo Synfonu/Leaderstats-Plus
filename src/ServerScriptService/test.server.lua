@@ -1,16 +1,15 @@
 local lsp = require(game:GetService("ServerScriptService").LeaderstatsPlus)
-lsp:setDataValues({
-    Cash = 1000
-})
+local players = game:GetService("Players")
 
+lsp:setDataValues({Cash = 0})
+players.PlayerAdded:Connect(function(player) lsp(player) end)
 
---
+game.Workspace.Part.Touched:Connect(function(hit: Part) 
+    if hit.Parent:IsA("Model") and hit.Parent:FindFirstChild("Humanoid") then
+        local character = hit.Parent
+        local player = players:GetPlayerFromCharacter(character)
+        local currentCash = player:GetAttribute("Cash")
 
-game:GetService("Players").PlayerAdded:Connect(function(player)
-    local playerData = lsp(player)
-
-    task.wait(3)
-
-    local currentCash = player:GetAttribute("Cash")
-    player:SetAttribute("Cash", 500)
+        player:SetAttribute("Cash", currentCash + 100)
+    end
 end)
