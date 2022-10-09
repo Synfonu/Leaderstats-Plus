@@ -19,17 +19,30 @@ local Players = game:GetService("Players")
 local ProfileStore = nil
 local LeaderstatsPlus = Oops.class{}
 
-local CoreSettings = { -- These can either be edited here or with the :Set() function.
+local CoreSettings = {
     KickMessage = "We failed to load your data, please rejoin and try again.";
 
     Key = "LP_%s";
-    DataName = "MdXIQwIHW8"; -- Changing this will reset ALL saved data! ⚠
+    DataName = "MdXIQwIHW8"; -- Changing this will reset ALL saved data! ⚠;
 }
 
 local MainValues = {}
+local Prefixes = {}
 local AlreadySetValues = false
 
 ---
+
+-- Function by @Dev_Ryan
+local letters = {"K","M","B","T","q","Q","s","S","O","N","d","U","D"}
+local function formatNumber(n)
+    if not tonumber(n) then return n end
+    if n < 10000 then return math.floor(n) end
+    local d = math.floor(math.log10(n)/3)*3
+    local s = tostring(n/(10^d)):sub(1,5)
+    return s..tostring(letters[math.floor(d/3)])
+end
+
+--
 
 function LeaderstatsPlus:setDataValues(values: table)    
     if AlreadySetValues then
@@ -82,23 +95,34 @@ function LeaderstatsPlus:__init(player: Player)
                         continue
                     end
             
+                    player:SetAttribute(dataName, value)
                     local val = Instance.new("StringValue")
                     val.Name = dataName
-                    val.Value = tostring(value)
                     val.Parent = leaderstats
 
-                    player:SetAttribute(dataName, value)
+                    if Prefixes[dataName] ~= nil then
+                        val.Value = Prefixes[dataName]..formatNumber(player:GetAttribute(dataName))
+                    else
+                        val.Value = formatNumber(player:GetAttribute(dataName))
+                    end
 
                     player:GetAttributeChangedSignal(dataName):Connect(function()
-                        val.Value = tostring(player:GetAttribute(dataName))
+                        if Prefixes[dataName] ~= nil then
+                            val.Value = Prefixes[dataName]..formatNumber(player:GetAttribute(dataName))
+                        else
+                            val.Value = formatNumber(player:GetAttribute(dataName))
+                        end
+
                         Profile.Data[dataName] = player:GetAttribute(dataName)
                     end)
 
                     val:GetPropertyChangedSignal("Value"):Connect(function()
-                        if val.Value ~= tostring(player:GetAttribute(dataName)) then
-                            -- unregistered leaderstat change
-                            warn("[LeaderstatsPlus]: Leaderstats were changed unexpectedly, in future please use player:SetAttribute().")
-                            player:SetAttribute(dataName, val.Value)
+                        local trueValue = player:GetAttribute(dataName)
+                        local stringValue = string.gsub(tostring(trueValue), "%D", "")
+                        stringValue = tonumber(stringValue)
+
+                        if trueValue ~= stringValue then
+                            error("[LeaderstatsPlus]: Leaderstats were changed unexpectedly, you must use player:SetAttribute(valueName).")
                         end
                     end)
 
@@ -108,6 +132,8 @@ function LeaderstatsPlus:__init(player: Player)
                 if total > 4 then
                     warn("[LeaderstatsPlus]: You have registered "..total.."/4 values. Roblox Leaderstats only support 4 values.")
                 end
+
+                return self
             else
                 Profile:Release()
             end
@@ -116,5 +142,16 @@ function LeaderstatsPlus:__init(player: Player)
         end
     end
 end
+
+function LeaderstatsPlus:setPrefix(valName, pref)
+    pref = tostring(pref)
+
+    if MainValues[valName] ~= nil and pref ~= nil and (pref:len() > 2) == false then
+        Prefixes[valName] = pref
+    elseif (pref:len() > 2) == true then
+        warn("too long prefix")
+    end
+end
+
 
 return LeaderstatsPlus
