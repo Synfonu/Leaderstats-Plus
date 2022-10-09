@@ -35,6 +35,8 @@ local AlreadySetValues = false
 -- Function by @Dev_Ryan
 local letters = {"K","M","B","T","q","Q","s","S","O","N","d","U","D"}
 local function formatNumber(n)
+    if typeof(n) ~= "number" then return n end
+
     if not tonumber(n) then return n end
     if n < 10000 then return math.floor(n) end
     local d = math.floor(math.log10(n)/3)*3
@@ -117,9 +119,10 @@ function LeaderstatsPlus:__init(player: Player)
                     end)
 
                     val:GetPropertyChangedSignal("Value"):Connect(function()
-                        local trueValue = player:GetAttribute(dataName)
-                        local stringValue = string.gsub(tostring(trueValue), "%D", "")
-                        stringValue = tonumber(stringValue)
+                        local trueValue = tostring(player:GetAttribute(dataName))
+                        local stringValue = trueValue:sub(1)
+
+                        warn(stringValue, trueValue)
 
                         if trueValue ~= stringValue then
                             error("[LeaderstatsPlus]: Leaderstats were changed unexpectedly, you must use player:SetAttribute(valueName).")
