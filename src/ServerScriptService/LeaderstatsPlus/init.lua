@@ -149,10 +149,10 @@ end
 function LeaderstatsPlus:setPrefix(valName, pref)
     pref = tostring(pref)
 
-    if MainValues[valName] ~= nil and pref ~= nil and (pref:len() > 2) == false then
+    if MainValues[valName] ~= nil and pref ~= nil and (pref:len() > 1) == false then
         Prefixes[valName] = pref
-    elseif (pref:len() > 2) == true then
-        warn("too long prefix")
+    elseif (pref:len() > 1) == true then
+        error("[LeaderstatsPlus]: Your prefix for "..valName.." is too long! Limit is 1 character.")
     end
 end
 
